@@ -43,6 +43,11 @@ let routesData = [
         path: '/ulDemo',
         name: 'ulDemo',
         component: () => import('@/views/ulDemo.vue'),
+    },
+    {
+        path: '/01project',
+        name: '01project',
+        component: () => import('@/views/50projects/01project.vue'),
     }
     
    

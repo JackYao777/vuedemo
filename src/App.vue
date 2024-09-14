@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style>
-/* html,
+html,
 body {
   height: 100%;
   width: 100%;
@@ -40,5 +40,5 @@ body {
   height: 100%;
   width: 100%;
   color: rgb(rgb(66, 48, 48), green, blue)
-} */
+}
 </style>
