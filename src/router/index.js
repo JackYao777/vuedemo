@@ -45,9 +45,17 @@ let routesData = [
         component: () => import('@/views/ulDemo.vue'),
     },
     {
+        //flex布局
         path: '/01project',
         name: '01project',
         component: () => import('@/views/50projects/01project.vue'),
+    },
+    {
+        
+        //process进度条
+        path: '/02project',
+        name: '02project',
+        component: () => import('@/views/50projects/02project.vue'),
     }
     
    
