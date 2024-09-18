@@ -66,10 +66,24 @@ let routesData = [
     },
     {
         
-        //transform旋转效果
+        //搜索滑动效果
         path: '/04project',
         name: '04project',
         component: () => import('@/views/50projects/04project.vue'),
+    },
+    {
+        
+        //transform旋转效果
+        path: '/05project',
+        name: '05project',
+        component: () => import('@/views/50projects/05project.vue'),
+    },
+    {
+        
+        //loading效果
+        path: '/06project',
+        name: '06project',
+        component: () => import('@/views/50projects/06project.vue'),
     },
     
    

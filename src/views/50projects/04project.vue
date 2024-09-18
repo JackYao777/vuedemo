@@ -1,9 +1,10 @@
 <template>
     <div class="box">
-        <div class="box-btn">
-            <button>测试</button>
-            <button>关闭</button>
-            <span class="ceshi"></span>
+        <div class="search">
+            <input type="text" class="input" placeholder="Search...">
+            <button class="btn">
+                <i class="el-icon-search"></i>
+            </button>
         </div>
         <span>
 
@@ -12,7 +13,16 @@
 </template>
 <script>
 export default {
-
+    mounted() {
+        const search = document.querySelector('.search')
+        const btn = document.querySelector('.btn')
+        const input = document.querySelector('.input')
+        console.log('btn',btn);
+        btn.addEventListener('click', () => {
+            search.classList.toggle('active')
+            input.focus()
+        })
+    },
 }
 </script>
 <style lang="less" scoped>
@@ -20,45 +30,51 @@ export default {
     width: 100%;
     height: 100%;
     border: 1px solid red;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: powderblue;
+    overflow: hidden;
 
-    // position: relative;
-    // display: flex;
-    // justify-content: center;
-    .box-btn {
-        // text-align: center;
-        height: 200px;
-        width: 200px;
-        // inset: 0;
-        // margin: auto;
-        border: 1px solid rebeccapurple;
-        display: inline-block;
-        vertical-align: middle;
-
-        // position: absolute;
-        // left: 50%;
-        // top:50%;
-        //  transform: translate(-50%,-50%);
-        button{
-            display: inline-block;
-            border: 1px solid black;
-            vertical-align: middle;
-        }
-        .ceshi {
-            display: inline-block;
-            border: 1px solid black;
-            height: 100%;
-            vertical-align: middle;
-            width: 0;
-        }
+    .search {
+        position: relative;
+        height: 50px;
     }
 
-    span {
-        display: inline-block;
-        border: 1px solid black;
-        height: 100%;
-        // width: 50%;
-        vertical-align: middle;
+    .search .input {
+        background-color: #fff;
+        border: 0;
+        font-size: 18px;
+        padding: 15px;
+        height: 20px;
+        width: 20px;
+        transition: width 0.3s ease;
+    }
+
+    .btn {
+        background-color: #fff;
+        border: 0;
+        cursor: pointer;
+        font-size: 24px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 50px;
+        width: 50px;
+        transition: transform 0.3s ease;
+    }
+
+    .btn:focus,
+    .input:focus {
+        outline: none;
+    }
+
+    .search.active .input {
+        width: 200px;
+    }
+
+    .search.active .btn {
+        transform: translateX(198px);
     }
 }
 </style>
