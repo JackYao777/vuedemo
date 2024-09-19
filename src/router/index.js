@@ -85,7 +85,27 @@ let routesData = [
         name: '06project',
         component: () => import('@/views/50projects/06project.vue'),
     },
-    
+    {
+        
+        //scroll滑动条添加元素效果
+        path: '/07project',
+        name: '07project',
+        component: () => import('@/views/50projects/07project.vue'),
+    },
+    {
+        
+        //Split Landing Page
+        path: '/08project',
+        name: '08project',
+        component: () => import('@/views/50projects/08project.vue'),
+    },
+    {
+        
+        //Form Wave
+        path: '/09project',
+        name: '09project',
+        component: () => import('@/views/50projects/09project.vue'),
+    },
    
 ];
 //创建并暴露一个路由器
