@@ -106,6 +106,20 @@ let routesData = [
         name: '09project',
         component: () => import('@/views/50projects/09project.vue'),
     },
+    {
+        
+        //projects/faq-collapse
+        path: '/10project',
+        name: '10project',
+        component: () => import('@/views/50projects/10project.vue'),
+    },
+     {
+        
+        //projects/faq-collapse
+        path: '/11project',
+        name: '11project',
+        component: () => import('@/views/50projects/11project.vue'),
+    },
    
 ];
 //创建并暴露一个路由器
