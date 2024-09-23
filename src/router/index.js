@@ -115,12 +115,46 @@ let routesData = [
     },
      {
         
-        //projects/faq-collapse
+        //projects/Event Keycodes
         path: '/11project',
         name: '11project',
         component: () => import('@/views/50projects/11project.vue'),
     },
-   
+    {
+        
+        //projects/Incrementing Counter
+        path: '/12project',
+        name: '12project',
+        component: () => import('@/views/50projects/12project.vue'),
+    },
+    {
+        
+        //projects/Drink Water
+        path: '/13project',
+        name: '13project',
+        component: () => import('@/views/50projects/13project.vue'),
+    },
+    {
+        
+        //projects/Background Slider
+        path: '/14project',
+        name: '14project',
+        component: () => import('@/views/50projects/14project.vue'),
+    },
+    {
+        
+        //projects/theme-clock
+        path: '/15project',
+        name: '15project',
+        component: () => import('@/views/50projects/15project.vue'),
+    },
+    {
+        
+        //projects/drawing-app
+        path: '/16project',
+        name: '16project',
+        component: () => import('@/views/50projects/16project.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({
