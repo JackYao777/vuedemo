@@ -11,6 +11,7 @@
   "dependencies": {
     "@jiaminghi/data-view": "^2.10.0",
     "@vueuse/core": "^11.0.3",
+    "axios": "^1.7.7",
     "core-js": "^3.8.3",
     "echarts": "^4.9.0",
     "element-ui": "^2.15.14",

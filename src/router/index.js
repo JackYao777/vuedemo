@@ -155,6 +155,41 @@ let routesData = [
         name: '16project',
         component: () => import('@/views/50projects/16project.vue'),
     },
+    {
+        
+        //projects/kinetic-loader
+        path: '/17project',
+        name: '17project',
+        component: () => import('@/views/50projects/17project.vue'),
+    },
+    {
+        
+        //projects/sticky-navigation
+        path: '/18project',
+        name: '18project',
+        component: () => import('@/views/50projects/18project.vue'),
+    },
+    {
+        
+        //projects/sticky-navigation
+        path: '/19project',
+        name: '19project',
+        component: () => import('@/views/50projects/19project.vue'),
+    },
+    {
+        
+        //projects/Toast Notification
+        path: '/20project',
+        name: '20project',
+        component: () => import('@/views/50projects/20project.vue'),
+    },
+    {
+        
+        //projects/Github Profiles
+        path: '/21project',
+        name: '21project',
+        component: () => import('@/views/50projects/21project.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({
