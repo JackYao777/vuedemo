@@ -8,7 +8,7 @@
     <!-- <DataV></DataV> -->
     <!-- <EchartsV></EchartsV> -->
     <!-- <language></language> -->
-     <router-view></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -21,9 +21,12 @@ import EchartsV from '@/components/EchartsV.vue'
 import language from './views/language.vue'
 export default {
   name: 'App',
-  components: { Iconindex, TreeNodeC, DataV, EchartsV,language },
+  components: { Iconindex, TreeNodeC, DataV, EchartsV, language },
 }
 </script>
+<!-- http://47.115.128.32:9000/vueadmin//UserIconpic/%E7%BA%A2%E8%8E%B2.jpg -->
+<!-- http://47.115.128.32:9000/vueadmin//UserIconpic/bgimg.jpg -->
+<!-- http://47.115.128.32:9000/vueadmin//UserIconadminVue/Another03.jpg -->
 
 <style>
 html,

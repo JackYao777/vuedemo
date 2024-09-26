@@ -190,6 +190,55 @@ let routesData = [
         name: '21project',
         component: () => import('@/views/50projects/21project.vue'),
     },
+    {
+        
+        //projects/double-click-heart 
+        path: '/22project',
+        name: '22project',
+        component: () => import('@/views/50projects/22project.vue'),
+    },
+    {
+        
+        //projects/auto-text-effect 
+        path: '/23project',
+        name: '23project',
+        component: () => import('@/views/50projects/23project.vue'),
+    },
+    {
+        
+        //projects/password-generator  
+        path: '/24project',
+        name: '24project',
+        component: () => import('@/views/50projects/24project.vue'),
+    },
+    {
+        
+        //projects/Good Cheap Fast
+        path: '/25project',
+        name: '25project',
+        component: () => import('@/views/50projects/25project.vue'),
+    },
+    {
+        
+        //projects/Notes App
+        path: '/26project',
+        name: '26project',
+        component: () => import('@/views/50projects/26project.vue'),
+    },
+    {
+        
+        //projects/animated-countdown
+        path: '/27project',
+        name: '27project',
+        component: () => import('@/views/50projects/27project.vue'),
+    },
+    {
+        
+        //projects/animated-countdown
+        path: '/28project',
+        name: '28project',
+        component: () => import('@/views/50projects/28project.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({

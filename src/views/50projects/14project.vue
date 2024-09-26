@@ -3,22 +3,27 @@
         <div class="slider-container">
             <div class="slide active" style="
           background-image: url('http://47.115.128.32:9000/vueadmin//UserIconadminVue/捕获.PNG');
-        "></div>
+        ">
+            </div>
             <div class="slide" style="
           background-image: url('http://47.115.128.32:9000/vueadmin//UserIconadminVue/10%E6%9C%8823%E6%97%A5%20(3)(2).jpg');
-        "></div>
+        ">
+            </div>
 
             <div class="slide" style="
           background-image: url('/photo-1495467033336-2effd8753d51?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2100&q=80');
-        "></div>
+        ">
+            </div>
 
             <div class="slide" style="
           background-image: url('/photo-1522735338363-cc7313be0ae0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2689&q=80');
-        "></div>
+        ">
+            </div>
 
             <div class="slide" style="
           background-image: url('/photo-1559087867-ce4c91325525?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2100&q=80');
-        "></div>
+        ">
+            </div>
 
             <button class="arrow left-arrow" id="left">
                 <i class="el-icon-back fa-arrow-left"></i>
