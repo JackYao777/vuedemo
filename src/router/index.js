@@ -234,10 +234,38 @@ let routesData = [
     },
     {
         
-        //projects/animated-countdown
+        //projects/Image Carousel
         path: '/28project',
         name: '28project',
         component: () => import('@/views/50projects/28project.vue'),
+    },
+    {
+        
+        //projects/Hoverboard
+        path: '/29project',
+        name: '29project',
+        component: () => import('@/views/50projects/29project.vue'),
+    },
+    {
+        
+        //projects/pokedex
+        path: '/30project',
+        name: '30project',
+        component: () => import('@/views/50projects/30project.vue'),
+    },
+    {
+        
+        //projects/mobile-tab-navigation
+        path: '/31project',
+        name: '31project',
+        component: () => import('@/views/50projects/31project.vue'),
+    },
+    {
+        
+        //projects/3d-background-boxes
+        path: '/32project',
+        name: '32project',
+        component: () => import('@/views/50projects/32project.vue'),
     },
 ];
 //创建并暴露一个路由器
