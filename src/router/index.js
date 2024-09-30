@@ -267,6 +267,41 @@ let routesData = [
         name: '32project',
         component: () => import('@/views/50projects/32project.vue'),
     },
+    {
+        
+        //projects/Verify Account Ui
+        path: '/33project',
+        name: '33project',
+        component: () => import('@/views/50projects/33project.vue'),
+    },
+    {
+        
+        //projects/Live User Filter
+        path: '/34project',
+        name: '34project',
+        component: () => import('@/views/50projects/34project.vue'),
+    },
+    {
+        
+        //projects/feedback-ui-design
+        path: '/35project',
+        name: '35project',
+        component: () => import('@/views/50projects/35project.vue'),
+    },
+    {
+        
+        //projects/Custom Range Slider
+        path: '/36project',
+        name: '36project',
+        component: () => import('@/views/50projects/36project.vue'),
+    },
+    {
+        
+        //projects/Netflix Mobile Navigation
+        path: '/37project',
+        name: '37project',
+        component: () => import('@/views/50projects/37project.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({
