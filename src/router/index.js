@@ -302,6 +302,34 @@ let routesData = [
         name: '37project',
         component: () => import('@/views/50projects/37project.vue'),
     },
+    {
+        
+        //projects/Quiz App
+        path: '/38project',
+        name: '38project',
+        component: () => import('@/views/50projects/38project.vue'),
+    },
+    {
+        
+        //projects/Testimonial Box Switcher
+        path: '/39project',
+        name: '39project',
+        component: () => import('@/views/50projects/39project.vue'),
+    },
+    {
+        
+        //projects/random-image-generator
+        path: '/40project',
+        name: '40project',
+        component: () => import('@/views/50projects/40project.vue'),
+    },
+    {
+        
+        //projects/random-image-generator
+        path: '/41project',
+        name: '41project',
+        component: () => import('@/views/50projects/41project.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({
