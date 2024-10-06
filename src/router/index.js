@@ -330,6 +330,13 @@ let routesData = [
         name: '41project',
         component: () => import('@/views/50projects/41project.vue'),
     },
+    {
+        
+        //projects/random-image-generator
+        path: '/mp4Demo',
+        name: 'mp4Demo',
+        component: () => import('@/views/mp4Demo.vue'),
+    },
 ];
 //创建并暴露一个路由器
 const router = new VueRouter({
