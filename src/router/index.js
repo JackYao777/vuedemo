@@ -337,7 +337,20 @@ let routesData = [
         name: 'mp4Demo',
         component: () => import('@/views/mp4Demo.vue'),
     },
+    {
+        
+        //projects/random-image-generator
+        path: '/jishu',
+        name: 'jishu',
+        component: () => import('@/views/jishu/yibu.vue'),
+    },
+    {
+        path: '/zujian/autocompleteDemo',
+        name: 'autocompleteDemo',
+        component: () => import('@/views/zujian/autocompleteDemo.vue'),
+    },
 ];
+
 //创建并暴露一个路由器
 const router = new VueRouter({
     mode: 'hash',
