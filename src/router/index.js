@@ -349,6 +349,11 @@ let routesData = [
         name: 'autocompleteDemo',
         component: () => import('@/views/zujian/autocompleteDemo.vue'),
     },
+    {
+        path: '/zujian/buju',
+        name: 'autocompleteDemo',
+        component: () => import('@/views/zujian/buju.vue'),
+    },
 ];
 
 //创建并暴露一个路由器
