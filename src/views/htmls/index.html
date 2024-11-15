@@ -1,0 +1,1454 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script
+      type="text/javascript"
+      src="../../ClientGlobalContext.js.aspx"
+    ></script>
+    <script type="text/javascript" src="../libs/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../libs/vue.js"></script>
+    <script type="text/javascript" src="../libs/elementui.js"></script>
+    <script type="text/javascript" src="../libs/function.common.js"></script>
+    <link rel="stylesheet" href="../css/elementui.css" />
+    <link rel="stylesheet" href="../css/budgetdistributions.css" />
+    <script src="../libs/elementui_locale_en.js"></script>
+    <title>Budget Distributions</title>
+    <style>
+      body {
+        margin: 0px;
+      }
+
+      .budgetdistributions {
+        background-color: white;
+      }
+
+      .budgetdistributions .content-form-box {
+        margin: 0px;
+      }
+
+      .budgetdistributions .form-content {
+        padding: 0px;
+      }
+
+      .budgetdistributions .el-dialog__body {
+        padding: 5px 20px;
+      }
+
+      .budgetdistributions .el-input__inner {
+        width: 100%;
+      }
+
+      .cellborder {
+        border: 1px solid #dcdfe6;
+      }
+      .budgetdistributionsubtitle {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="budgetdistributions">
+        <div
+          class="budgetdistributiontitle"
+          v-html="isShowVerified?'Finance Expense Confirmation':'Shared Cost'"
+        ></div>
+        <div
+          class="budgetdistributionsubtitle"
+          v-html="isShowVerified?'(Please click the“ confirm” button below  to save the Verified Expense amount)':''"
+        ></div>
+        <!-- 列表组件 -->
+        <section class="content-form-box">
+          <div>
+            <el-form :inline="true" size="mini" :model="filterForm">
+              <el-form-item label="Department:">
+                <el-cascader
+                  placeholder="Please select"
+                  v-model="filterForm.budgetdistributionsLineId"
+                  size="mini"
+                  style="width: 160px"
+                  :options="departmentTreeList"
+                  :disabled="isDisabled"
+                  filterable
+                >
+                </el-cascader>
+              </el-form-item>
+              <el-form-item
+                class="screen-item-icon"
+                label="Department Shared Expense:"
+              >
+                <el-input-number
+                  v-model="filterForm.departmentsharedexpense"
+                  size="mini"
+                  :controls="false"
+                  :min="0"
+                  :disabled="isDisabled ? isDisabled : isCanVerified"
+                ></el-input-number>
+              </el-form-item>
+              <el-form-item
+                class="screen-item-icon"
+                label="Verified Expense:"
+                v-show="isCanVerified"
+              >
+                <el-input-number
+                  v-model="filterForm.sangfor_verifiedexpense"
+                  size="mini"
+                  :controls="false"
+                  :min="0"
+                ></el-input-number>
+              </el-form-item>
+              <el-form-item class="screen-item-icon" label="">
+                <el-button
+                  type="primary"
+                  size="mini"
+                  @click="childSavebudgetdistributions()"
+                  :disabled="isDisabled"
+                  >Add</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+          <div>
+            <el-table
+              ref="detailsTable"
+              :data="detailsTable.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+              v-loading="!isDataLoaded"
+              border
+              row-key="sangfor_budgetdistributionid"
+              style="width: 100%"
+              empty-text="No Data"
+              size="small"
+              class="main-table"
+              @cell-click="handleMainTableCellClick"
+            >
+              <el-table-column
+                width="200"
+                prop=""
+                label="Department"
+                :resizable="false"
+              >
+                <template slot-scope="scope">
+                  <template
+                    v-if="scope.row.isEdit && editCell.fieldName =='budgetdistributionLine'&&!isCanVerified"
+                  >
+                    <!--如果是财务核销节点，部门是无法修改的，因此需要加上!isCanVerified-->
+                    <el-cascader
+                      placeholder="Please select"
+                      v-model="scope.row.budgetdistributionLine"
+                      size="mini"
+                      style="width: 100%"
+                      :options="departmentLineTreeList"
+                      filterable
+                      @change="updateChildTableData(scope.$index,scope.row,'sangfor_budgetdistribution','budgetdistributionLine')"
+                    >
+                    </el-cascader>
+                  </template>
+                  <template v-else>
+                    <div
+                      class="table-edit-cell-label"
+                      @click="childTableCellClick(scope.$index,scope.row,'sangfor_budgetdistribution','budgetdistributionLine')"
+                    >
+                      <span>{{scope.row['budgetdistributionLineLabel']}}</span>
+                    </div>
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Department Shared Expense"
+                :resizable="false"
+              >
+                <template slot-scope="scope">
+                  <template
+                    v-if="scope.row.isEdit && editCell.fieldName =='sangfor_departmentsharedexpense'&&!isCanVerified"
+                  >
+                    <!--如果是财务核销节点，部门是无法修改的，因此需要加上!isCanVerified-->
+                    <el-input-number
+                      v-model="scope.row.sangfor_departmentsharedexpense"
+                      size="mini"
+                      :controls="false"
+                      :min="0"
+                      @blur="updateChildTableData(scope.$index,scope.row,'sangfor_budgetdistribution','sangfor_departmentsharedexpense')"
+                    ></el-input-number>
+                  </template>
+                  <template v-else>
+                    <div
+                      class="table-edit-cell-label el-input-number--mini cellborder"
+                      @click="childTableCellClick(scope.$index,scope.row,'sangfor_budgetdistribution','sangfor_departmentsharedexpense')"
+                    >
+                      <span>
+                        {{scope.row['sangfor_departmentsharedexpense']}}
+                      </span>
+                    </div>
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Department Shared Expense（USD)"
+                :resizable="false"
+              >
+                <template slot-scope="scope">
+                  <template>
+                    <div class="table-edit-cell-label">
+                      <span
+                        >{{scope.row['sangfor_departmentsharedexpenseusd']}}</span
+                      >
+                    </div>
+                  </template>
+                </template>
+              </el-table-column>
+              <!--易娟 2024/01/16 增加财务审核节点-->
+              <el-table-column
+                label="Verified Expense"
+                :resizable="false"
+                v-if="isShowVerified"
+              >
+                <template slot-scope="scope">
+                  <template
+                    v-if="scope.row.isEdit && editCell.fieldName =='sangfor_verifiedexpense' && isCanVerified"
+                  >
+                    <el-input-number
+                      v-model="scope.row.sangfor_verifiedexpense"
+                      size="mini"
+                      :controls="false"
+                      :min="0"
+                      @blur="updateChildTableData(scope.$index,scope.row,'sangfor_budgetdistribution','sangfor_verifiedexpense')"
+                      @focus="focusEvent(scope.row)"
+                      v-focus
+                    ></el-input-number>
+                  </template>
+                  <template v-else>
+                    <div
+                      class="table-edit-cell-label"
+                      @click="childTableCellClick(scope.$index,scope.row,'sangfor_budgetdistribution','sangfor_verifiedexpense')"
+                    >
+                      <span> {{scope.row['sangfor_verifiedexpense']}} </span>
+                    </div>
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Verified Expense (USD)"
+                :resizable="false"
+                v-if="isShowVerified"
+              >
+                <template slot-scope="scope">
+                  <template>
+                    <div class="table-edit-cell-label">
+                      <span>{{scope.row['sangfor_verifiedexpenseusd']}}</span>
+                    </div>
+                  </template>
+                </template>
+              </el-table-column>
+              <!--易娟 2024/01/16 增加财务审核节点-->
+
+              <el-table-column
+                label="Operation"
+                width="100"
+                :resizable="false"
+                align="center"
+                v-if="showOperation"
+              >
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    v-if="scope.$index !== 0"
+                    @click="childDeleteProductLineInformation(scope.row)"
+                    >Delete</el-button
+                  >
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-row>
+              <el-col :span="20">
+                <el-pagination
+                  @current-change="handlePaginationCurrentChange"
+                  :current-page="currentPage"
+                  :page-size="pageSize"
+                  layout="total, prev, pager, next"
+                  :total="detailsTable.length"
+                >
+                </el-pagination>
+              </el-col>
+              <el-col :span="4" style="text-align: right; line-height: 32px">
+                <span>{{pageSize}} items/Page</span>
+              </el-col>
+            </el-row>
+            <el-row> </el-row>
+            <el-form :inline="true" size="mini" v-show="isShowVerified">
+              <el-form-item
+                class="screen-item-icon"
+                label="Total Verified Expense (USD):"
+              >
+                <el-input
+                  v-model="totalVerifiedExpenseusd"
+                  size="mini"
+                  :controls="false"
+                  :disabled="true"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                class="screen-item-icon"
+                label=""
+                v-show="isCanVerified"
+              >
+                <el-button
+                  type="primary"
+                  size="mini"
+                  @click="confirmVerified()"
+                  :disabled="!isCanVerified"
+                  >Confirm</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script>
+      new Vue({
+        el: "#app",
+        props: {},
+        data() {
+          return {
+            /**当前登录的用户*/
+            currentUser: {
+              id: "",
+              name: "",
+              businessunitid: "",
+              role: [], //用户的角色
+            },
+            /**实体对象，就是当前自定义页面挂载在哪个下面，包含实体名称，实体id，实体逻辑名*/
+            currentEntity: {
+              id: "",
+              logicName: "",
+              entitySetName: "",
+              name: "",
+              totalrequestedbudget: "",
+              totalrequestedbudgetusd: "",
+              transactioncurrencyid: "",
+              exchangerate: "", //活动申请汇率
+              othersangfordepartments: "",
+              owner: "",
+              approvalstatus: "",
+            },
+            currentTotalrequestedbudget: 0,
+            detailsTable: [],
+            isDataLoaded: true,
+            /**当前编辑的单元格信息*/
+            editCell: {
+              /**当前编辑的单元格所在行*/
+              rowIndex: 0,
+              /**当前编辑的单元格所在列名称*/
+              fieldName: "",
+              /**当前编辑的单元格所在列的标题*/
+              fieldLabel: "",
+              /**当前编辑的单元格所在列的旧值，只有值变动了才需要更新数据*/
+              oldValue: "",
+            },
+            /**从crm查询出来的数据*/
+            budgetdistributionsLineList: [],
+            /**根据crm查询出来的数据，然后按照父子节点构造成tree需要的格式*/
+            departmentTreeList: [],
+            departmentLineTreeList: [],
+            currencyExchangerate: 0,
+            remainingbudget: 0,
+            filterForm: {
+              budgetdistributionsLineId: "",
+              departmentsharedexpense: "",
+              departmentsharedexpenseusd: "",
+              //易娟 财务核销金额
+              sangfor_verifiedexpense: "",
+              sangfor_verifiedexpenseusd: "",
+              sangfor_annualofficebudgetid: "",
+              isSelected: false,
+            },
+            /** 当前打开的是第几页数据 */
+            currentPage: 1,
+            /** 当前每页显示多少条数据 */
+            pageSize: 5,
+            isDisabled: true,
+            //易娟 2024/01/16 增加财务审核节点
+            isShowVerified: false, //是否显示财务核销
+            isCanVerified: false, //当前用户是否可以财务核销,并且当前节点是财务核销
+            canVerifiedRole: ["Sanfor HQ Operation", "System Administrator"], //目前没有看到有安全角色Sangfor HQ Finance，看到财务配的安全角色是Sangfor Manager，因此先加上
+            /*canVerifiedRole: ['Sangfor HQ Finance', 'System Administrator']*/
+          };
+        },
+        watch: {},
+        mounted() {
+          ELEMENT.locale(ELEMENT.lang.en);
+          this.currentUser.id = SangforJS.D365.FunctionCommon.GetUserId();
+          this.currentEntity.logicName =
+            top.Xrm.Page.data.entity.getEntityName();
+          this.currentEntity.name =
+            top.Xrm.Page.data.entity.getPrimaryAttributeValue();
+          this.currentEntity.id =
+            SangforJS.D365.FunctionCommon.GetCurrentEntityId();
+          this.currentEntity.totalrequestedbudget =
+            top.Xrm.Page.data.entity.attributes
+              .get("sangfor_totalrequestedbudgetlocalcurrency")
+              .getValue();
+          this.currentEntity.totalrequestedbudgetusd =
+            top.Xrm.Page.data.entity.attributes
+              .get("sangfor_totalrequestedbudgetlocalcurrency_base")
+              .getValue();
+          this.currentEntity.transactioncurrencyid =
+            top.Xrm.Page.data.entity.attributes
+              .get("transactioncurrencyid")
+              .getValue()[0]
+              .id.replace("{", "")
+              .replace("}", "");
+          this.currentEntity.othersangfordepartments =
+            top.Xrm.Page.data.entity.attributes
+              .get("sangfor_othersangfordepartments")
+              .getValue();
+          this.currentEntity.approvalstatus =
+            top.Xrm.Page.data.entity.attributes
+              .get("sangfor_approvalstatus")
+              .getValue();
+          this.currentEntity.owner = top.Xrm.Page.data.entity.attributes
+            .get("ownerid")
+            .getValue()[0]
+            .id.replace("{", "")
+            .replace("}", "");
+          this.checkOthersangfordepartments();
+          this.getUsersInfo();
+          this.checkVerified();
+          this.getDepartmentTreeList();
+          this.getDepartmentLineTreeList();
+          this.getExchangerate();
+          window.addEventListener("resize", this.autoSetParentHeight, true);
+        },
+        methods: {
+          //检查是否可以添加部门分摊
+          checkOthersangfordepartments() {
+            //approvalstatus 状态是  To be submitted ，Rejected ，Returned
+            if (
+              this.currentEntity.othersangfordepartments == 920400001 &&
+              (this.currentEntity.approvalstatus == 920400001 ||
+                this.currentEntity.approvalstatus == 920400003 ||
+                this.currentEntity.approvalstatus == 920400004)
+            ) {
+              this.isDisabled = false;
+            }
+          },
+          //人民币转美元
+          convertToUSD(departmentsharedexpense) {
+            //财务核销时要去活动申请时的汇率
+            return this.isCanVerified
+              ? departmentsharedexpense / this.currentEntity.exchangerate
+              : departmentsharedexpense / this.currencyExchangerate;
+          },
+          //获取用户信息
+          getUsersInfo() {
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='systemuser'>";
+            fetchXml += "    <attribute name='systemuserid' />";
+            fetchXml += "    <attribute name='fullname' />";
+            fetchXml += "    <attribute name='businessunitid' />";
+            fetchXml += "    <filter type='and'>";
+            //fetchXml += "      <condition attribute='sangfor_issanforemployee' operator='eq' value='1'/>";
+            //fetchXml += "      <condition attribute='isdisabled' operator='eq' value='0'/>";
+            fetchXml +=
+              "      <condition attribute='systemuserid' operator='eq' value='" +
+              this.currentUser.id +
+              "' />";
+            fetchXml += "    </filter>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "systemuser",
+              (success) => {
+                //console.log('getUsersInfo---', success);
+                this.currentUser.name = success[0].fullname;
+                this.currentUser.businessunitid =
+                  success[0]._businessunitid_value;
+              },
+              (err) => {
+                /*console.log('getUsersInfo------', err);*/
+              }
+            );
+            this.currentUser.role =
+              SangforJS.D365.FunctionCommon.GetUserRoles();
+          },
+          getDepartmentTreeList() {
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='businessunit'>";
+            fetchXml += "    <attribute name='name' />";
+            fetchXml += "    <attribute name='businessunitid' />";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='isdisabled' operator='eq' value='0'/>";
+            fetchXml += "    </filter>";
+            fetchXml +=
+              "<link-entity name='sangfor_annualofficebudget' from='sangfor_businessunitid' to='businessunitid' alias='B' link-type='inner'>";
+            fetchXml += "    <attribute name='sangfor_remainingbudget'/>";
+            fetchXml += "    <attribute name='sangfor_year'/>";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='sangfor_remainingbudget' operator='gt' value='0'/>";
+            fetchXml += "    </filter>";
+            fetchXml += "</link-entity>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "businessunit",
+              (success) => {
+                console.log("Department1", success);
+                if (success.length > 0) {
+                  //去重,取年份最新的数据
+                  success = this.distinctByMaxInt(success);
+                  //this.budgetdistributionsLineList = success;
+                  this.departmentTreeList =
+                    SangforJS.D365.FunctionCommon.InitTreeData(
+                      success,
+                      "_sangfor_budgetdistributionsline_value",
+                      "businessunitid",
+                      "name",
+                      ["sangfor_name", "sangfor_value"]
+                    );
+                  //console.log('departmentTreeList', this.budgetdistributionsLineList, this.departmentTreeList);
+                  //this.$nextTick(() => {
+                  //    this.queryBudgetdistributionsLineData();
+                  //});
+                }
+              },
+              (err) => {
+                console.log(err);
+              }
+            );
+          },
+          getDepartmentLineTreeList() {
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='businessunit'>";
+            fetchXml += "    <attribute name='name' />";
+            fetchXml += "    <attribute name='businessunitid' />";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='isdisabled' operator='eq' value='0'/>";
+            fetchXml +=
+              "      <condition attribute='sangfor_businessunittype' operator='ne' value='920400003' />";
+            fetchXml +=
+              "      <condition attribute='sangfor_businessunittype' operator='ne' value='920400004' />";
+            fetchXml +=
+              "      <condition attribute='sangfor_businessunittype' operator='ne' value='920400000' />";
+            fetchXml += "    </filter>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "businessunit",
+              (success) => {
+                console.log("Department1", success);
+                if (success.length > 0) {
+                  //去重,取年份最新的数据
+                  success = this.distinctByMaxInt(success);
+                  this.budgetdistributionsLineList = success;
+                  this.departmentLineTreeList =
+                    SangforJS.D365.FunctionCommon.InitTreeData(
+                      this.budgetdistributionsLineList,
+                      "_sangfor_budgetdistributionsline_value",
+                      "businessunitid",
+                      "name",
+                      ["sangfor_name", "sangfor_value"]
+                    );
+                  this.$nextTick(() => {
+                    this.queryBudgetdistributionsLineData();
+                  });
+                }
+              },
+              (err) => {
+                console.log(err);
+              }
+            );
+          },
+          distinctByMaxInt(data) {
+            let distinctData = data.reduce((acc, current) => {
+              let existing = acc.find(
+                (item) => item.businessunitid === current.businessunitid
+              );
+              if (existing && existing.sangfor_year < current.sangfor_year) {
+                acc[acc.indexOf(existing)] = current;
+              } else if (!existing) {
+                acc.push(current);
+              }
+              return acc;
+            }, []);
+            return distinctData;
+          },
+          getExchangerate() {
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='transactioncurrency'>";
+            fetchXml += "    <attribute name='transactioncurrencyid' />";
+            fetchXml += "    <attribute name='currencysymbol' />";
+            fetchXml += "    <attribute name='currencyname' />";
+            fetchXml += "    <attribute name='isocurrencycode' />";
+            fetchXml += "    <attribute name='exchangerate' />";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='transactioncurrencyid' operator='eq' value='" +
+              this.currentEntity.transactioncurrencyid +
+              "' />";
+            fetchXml += "    </filter>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "transactioncurrency",
+              (success) => {
+                //console.log('transactioncurrency', success);
+                if (success.length > 0) {
+                  this.currencyExchangerate = success[0].exchangerate;
+                }
+              },
+              (err) => {
+                console.log(err);
+              }
+            );
+          },
+          //获取所有部门分摊
+          queryBudgetdistributionsLineData() {
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='sangfor_budgetdistribution'>";
+            fetchXml += "    <attribute name='sangfor_budgetdistributionid' />";
+            fetchXml += "    <attribute name='sangfor_name' />";
+            fetchXml +=
+              "    <attribute name='sangfor_departmentsharedexpense' />";
+            fetchXml += "    <attribute name='sangfor_annualofficebudgetid' />";
+            fetchXml +=
+              "    <attribute name='sangfor_businessunitidbudgetdistribution' />";
+            fetchXml += "    <attribute name='sangfor_country' />";
+            fetchXml +=
+              "    <attribute name='sangfor_departmentsharedexpenseusd' />";
+            fetchXml += "    <attribute name='sangfor_sponsoramount' />";
+            fetchXml +=
+              "    <attribute name='sangfor_businessunitdepartment' />";
+            fetchXml += "    <attribute name='sangfor_marketingcampaignid' />";
+            fetchXml += "    <attribute name='sangfor_verifiedexpense' />";
+            fetchXml +=
+              "    <attribute name='sangfor_verifiedexpenseusd' />"; /*易娟 2024/01/16 增加财务审核节点*/
+            fetchXml += "    <attribute name='sangfor_applicationcode' />";
+            fetchXml +=
+              "    <attribute name='sangfor_systemuserid_sponsoredpartner' />";
+            fetchXml += "    <order attribute='createdon' descending='false'/>";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='statecode' operator='eq' value='0'/>";
+            fetchXml +=
+              "      <condition attribute='sangfor_marketingcampaignid' operator='eq' value='" +
+              this.currentEntity.id +
+              "'/>";
+            fetchXml += "    </filter>";
+
+            //fetchXml += "    <link-entity name='sangfor_eventbudgetdeduction' from='sangfor_budgetdistributionid' to='sangfor_budgetdistributionid' alias='b' link-type='inner'>";
+            //fetchXml += "      <attribute name='sangfor_eventbudgetdeductionid' alias='sangfor_eventbudgetdeductionid' />";
+            //fetchXml += "    </link-entity>";
+
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            this.isDataLoaded = false;
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "sangfor_budgetdistribution",
+              (success) => {
+                this.isDataLoaded = true;
+                this.isEdit = false;
+                if (success.length > 0) {
+                  console.log(
+                    "sangfor_budgetdistributionList分摊数据",
+                    success
+                  );
+
+                  this.currentTotalrequestedbudget = 0;
+                  for (var i = 0; i < success.length; i++) {
+                    success[i].isEdit = false;
+                    this.currentTotalrequestedbudget +=
+                      success[i].sangfor_departmentsharedexpense;
+                    if (success[i]._sangfor_businessunitdepartment_value) {
+                      var itemInfo =
+                        SangforJS.D365.FunctionCommon.GetItemLinkInfoFromParentDataList(
+                          success[i]._sangfor_businessunitdepartment_value,
+                          this.budgetdistributionsLineList,
+                          "businessunitid",
+                          "name",
+                          "_sangfor_businessunitdepartment_value",
+                          " / "
+                        );
+                      success[i].budgetdistributionLine = itemInfo.valueList;
+                      success[i].budgetdistributionLineLabel =
+                        itemInfo.labelString;
+                    } else {
+                      success[i].budgetdistributionLine = [];
+                      success[i].budgetdistributionLineLabel = "";
+                    }
+                    //易娟 财务核销金额如果为空的话赋值0，避免无法编辑
+                    success[i].isverified =
+                      success[i].sangfor_verifiedexpense === undefined ? 0 : 1;
+                    //console.log('success[i].sangfor_verifiedexpense === undefined',success[i].sangfor_verifiedexpense === undefined)
+                    //console.log('success[i].isverified',success[i].isverified)
+                    success[i].sangfor_verifiedexpense = success[i]
+                      .sangfor_verifiedexpense
+                      ? success[i].sangfor_verifiedexpense
+                      : 0;
+                    //success[i].sangfor_verifiedexpenseusd = success[i].sangfor_verifiedexpenseusd ? success[i].sangfor_verifiedexpenseusd : 0;
+                    success[i].sangfor_annualofficebudgetid = success[i]
+                      ._sangfor_annualofficebudgetid_value
+                      ? success[i]._sangfor_annualofficebudgetid_value
+                      : "";
+
+                    //console.log(success[i].sangfor_eventbudgetdeductionid);
+                    //success[i].sangfor_eventbudgetdeductionid = success[i].sangfor_eventbudgetdeductionid ? success[i].sangfor_eventbudgetdeductionid : '';
+                  }
+                  //console.log('sangfor_budgetdistribution', success);
+                  this.detailsTable = success;
+                  //console.log('ere',this.noVerifiedCount);
+                  //console.log('detailsTable', detailsTable);
+                }
+                this.autoSetParentHeight();
+              },
+              (err) => {
+                console.log(err);
+              }
+            );
+          },
+          /*ADD按钮click事件*/
+          childSavebudgetdistributions() {
+            if (
+              !this.filterForm.budgetdistributionsLineId ||
+              this.filterForm.budgetdistributionsLineId.length == 0
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "Please select Department!",
+                "error"
+              );
+              return;
+            }
+            //易娟 判断是需要排除财务核销节点
+            if (
+              !this.filterForm.departmentsharedexpense &&
+              !this.isCanVerified
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "Please input Department Shared Expense!",
+                "error"
+              );
+              return;
+            }
+            //财务核销金额可为0
+            if (
+              this.filterForm.sangfor_verifiedexpense == "" &&
+              this.isCanVerified
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "Please input Verified Expense!",
+                "error"
+              );
+              return;
+            } else if (
+              !this.filterForm.sangfor_verifiedexpense &&
+              this.isCanVerified
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "The Verified Expense is 0, no need to add",
+                "error"
+              );
+              return;
+            }
+            if (
+              this.currentTotalrequestedbudget +
+                this.filterForm.departmentsharedexpense >
+              this.currentEntity.totalrequestedbudget
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "All shared expense cannot be greater than " +
+                  this.currentEntity.totalrequestedbudget +
+                  "!",
+                "error"
+              );
+              return;
+            }
+            var isDuplicateDepartment = this.checkDuplicateDepartment(
+              this.filterForm.budgetdistributionsLineId
+            );
+            if (isDuplicateDepartment) return;
+
+            this.getDepartmentBudget(
+              this.filterForm.budgetdistributionsLineId,
+              "Create",
+              null,
+              null,
+              null,
+              null,
+              null
+            );
+          },
+          /*新增部门分摊方法*/
+          savebudgetdistributions() {
+            var departmentBudget = this.checkDepartmentBudget(
+              this.filterForm.departmentsharedexpense
+            );
+            //2024/1/21 易娟 财务核销不需要判断金额
+            if (departmentBudget && !this.isCanVerified) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "Department shared expense cannot exceed remaining budget!",
+                "error"
+              );
+              return;
+            }
+            var payLoad = {
+              "sangfor_marketingcampaignid@odata.bind": `/sangfor_marketingcampaigns(${this.currentEntity.id})`,
+              "sangfor_businessunitdepartment@odata.bind": `/businessunits(${this.filterForm.budgetdistributionsLineId})`,
+              sangfor_departmentsharedexpense:
+                this.filterForm.departmentsharedexpense,
+              sangfor_departmentsharedexpenseusd: this.convertToUSD(
+                this.filterForm.departmentsharedexpense
+              ),
+              "transactioncurrencyid@odata.bind": `/transactioncurrencies(${this.currentEntity.transactioncurrencyid})`,
+              sangfor_name:
+                "department" + this.filterForm.budgetdistributionsLineId,
+              "ownerid@odata.bind": `/systemusers(${this.currentEntity.owner})`,
+            };
+            if (this.isCanVerified) {
+              payLoad["sangfor_verifiedexpense"] =
+                this.filterForm.sangfor_verifiedexpense;
+              payLoad["sangfor_verifiedexpenseusd"] = this.convertToUSD(
+                this.filterForm.sangfor_verifiedexpense
+              );
+            }
+            if (this.filterForm.sangfor_annualofficebudgetid != "") {
+              payLoad[
+                "sangfor_annualofficebudgetid@odata.bind"
+              ] = `/sangfor_annualofficebudgets(${this.filterForm.sangfor_annualofficebudgetid})`;
+            }
+            var reqList = [];
+            var req = new Sdk.CreateRequest(
+              "sangfor_budgetdistribution",
+              payLoad
+            );
+            reqList.push(req);
+            SangforJS.D365.FunctionCommon.ExecuteMultipleRequest(
+              reqList,
+              (res) => {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "save success!",
+                  "success"
+                );
+                this.queryBudgetdistributionsLineData();
+              },
+              (err) => {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "save error！",
+                  "error"
+                );
+                console.log("save error", err);
+              }
+            );
+          },
+          //删除分摊
+          childDeleteProductLineInformation(row) {
+            SangforJS.D365.FunctionCommon.OpenConfirmDialog(
+              "Delete this record?",
+              () => {
+                //删除对应明细
+                this.deleteebd(row.sangfor_budgetdistributionid);
+                var payLoad = {
+                  entityType: "sangfor_budgetdistribution",
+                  id: row.sangfor_budgetdistributionid,
+                };
+                var reqList = [];
+                var req = new Sdk.DeleteRequest(payLoad);
+                reqList.push(req);
+                SangforJS.D365.FunctionCommon.ExecuteMultipleRequest(
+                  reqList,
+                  (res) => {
+                    SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                      "delete success!",
+                      "success"
+                    );
+                    this.queryBudgetdistributionsLineData();
+                  },
+                  (err) => {
+                    SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                      "delete error！",
+                      "error"
+                    );
+                    console.log("delete error", err);
+                  }
+                );
+              }
+            );
+          },
+          checkDuplicateDepartment(departmentid) {
+            var result = false;
+            for (var i = 0; i < this.detailsTable.length; i++) {
+              if (
+                this.detailsTable[i]._sangfor_businessunitdepartment_value ==
+                departmentid
+              ) {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "Cannot select the same department!",
+                  "error"
+                );
+                result = true;
+              }
+            }
+            return result;
+          },
+          checkDepartmentBudget(departmentsharedexpense) {
+            var result = false;
+            if (departmentsharedexpense > this.remainingbudget) {
+              result = true;
+            }
+            return result;
+          },
+          getDepartmentBudget(
+            businessunitid,
+            opType,
+            index,
+            row,
+            entityName,
+            fieldName,
+            payLoad
+          ) {
+            //var date = new Date;
+            //var year = date.getFullYear();
+            //if (this.isCanVerified) {
+            var year = top.Xrm.Page.data.entity.attributes
+              .get("sangfor_applicationdate")
+              .getValue()
+              .getFullYear();
+            //}
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='sangfor_annualofficebudget'>";
+            fetchXml += "    <attribute name='sangfor_remainingbudget' />";
+            fetchXml +=
+              "    <attribute name='sangfor_annualdepartmentbudget' />";
+            fetchXml += "    <attribute name='sangfor_businessunitid' />";
+            fetchXml += "    <attribute name='sangfor_annualofficebudgetid' />";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='sangfor_year' operator='eq' value='" +
+              year +
+              "'/>";
+            fetchXml +=
+              "      <condition attribute='sangfor_businessunitid' operator='eq' value='" +
+              businessunitid +
+              "' />";
+            fetchXml += "    </filter>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "sangfor_annualofficebudget",
+              (success) => {
+                if (success.length > 0) {
+                  this.remainingbudget = success[0].sangfor_remainingbudget;
+                  if (opType == "Create") {
+                    this.filterForm.sangfor_annualofficebudgetid =
+                      success[0].sangfor_annualofficebudgetid;
+                  } else {
+                    //财务核销时，如果没有sangfor_annualofficebudgetid，不会保存，所以都是存在sangfor_annualofficebudgetid
+                    //如果申请人填写时没有绑定，财务核销时不能修改
+                    //财务核销时，部门是不能修改的。
+                    if (!this.isCanVerified) {
+                      if (row["sangfor_annualofficebudgetid"].trim() == "") {
+                        row["sangfor_annualofficebudgetid"] =
+                          success[0].sangfor_annualofficebudgetid.trim();
+                        payLoad[
+                          "sangfor_annualofficebudgetid@odata.bind"
+                        ] = `/sangfor_annualofficebudgets(${row["sangfor_annualofficebudgetid"]})`;
+                      }
+                      //如果修改部门，对应年度预算也要修改
+                      if (
+                        payLoad["sangfor_businessunitdepartment@odata.bind"]
+                      ) {
+                        row["sangfor_annualofficebudgetid"] =
+                          success[0].sangfor_annualofficebudgetid.trim();
+                        payLoad[
+                          "sangfor_annualofficebudgetid@odata.bind"
+                        ] = `/sangfor_annualofficebudgets(${row["sangfor_annualofficebudgetid"]})`;
+                      }
+                    }
+                  }
+                } else {
+                  this.filterForm.sangfor_annualofficebudgetid = "";
+                  //如果是财务核销节点，需要判断在活动申请年份，选择的办事处有咩有维护年度预算
+                  if (this.isCanVerified) {
+                    SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                      "The Office does not maintain an annual budget for the year in which the Marketing Campaign were requested!",
+                      "error"
+                    );
+                    return;
+                  }
+                }
+                this.$nextTick(() => {
+                  if (opType == "Create") {
+                    console.log("这里是Create分摊数据");
+                    this.savebudgetdistributions();
+                  } else {
+                    console.log("这里是Update分摊数据");
+                    this.updateTableData(
+                      index,
+                      row,
+                      entityName,
+                      fieldName,
+                      payLoad
+                    );
+                  }
+                });
+              },
+              (err) => {
+                console.log("getUsersInfo------", err);
+              }
+            );
+          },
+          /**
+           * 表格单元格点击事件
+           * @param row 所在行
+           * @param column 所在列
+           * @param cell 所在单元格
+           * @param event 事件
+           */
+          handleMainTableCellClick(row, column, cell, event) {
+            return;
+            //console.log('handleMainTableCellClick', row, column, cell, column.columnKey, column.label);
+            var rowIndex = this.detailsTable.findIndex(
+              (f) =>
+                f.sangfor_budgetdistributionid ==
+                row.sangfor_budgetdistributionid
+            );
+            if (
+              rowIndex != this.editCell.rowIndex &&
+              this.editCell.rowIndex != -1
+            ) {
+              this.$set(this.detailsTable[rowIndex], "isEdit", false);
+              this.editCell.rowIndex = -1;
+              this.editCell.fieldName = "";
+              this.editCell.fieldLabel = "";
+              this.editCell.oldValue = "";
+            } else if (rowIndex == this.editCell.rowIndex) {
+              if (column.label != this.editCell.fieldLabel) {
+                this.editCell.fieldName = "";
+                this.editCell.fieldLabel = "";
+                this.editCell.oldValue = "";
+              }
+            }
+          },
+          childTableCellClick(index, row, entityName, fieldName) {
+            //debugger
+            for (var i = 0; i < this.detailsTable.length; i++) {
+              if (
+                this.detailsTable[i][entityName + "id"] !=
+                row[entityName + "id"]
+              ) {
+                this.$set(this.detailsTable[i], "isEdit", false);
+              } else {
+                this.editCell.rowIndex = index;
+                this.editCell.fieldName = fieldName;
+                this.editCell.oldValue = row[fieldName];
+                if (
+                  this.isDisabled &&
+                  (fieldName == "sangfor_departmentsharedexpense" ||
+                    fieldName == "budgetdistributionLine")
+                ) {
+                  this.$set(this.detailsTable[i], "isEdit", false);
+                } else {
+                  this.$set(this.detailsTable[i], "isEdit", true);
+                }
+              }
+            }
+            //console.log('childTableCellClick', index, row, fieldName, this.editCell);
+          },
+          updateChildTableData(index, row, entityName, fieldName) {
+            console.log("修改Department数据");
+            var payLoad = {};
+            if (fieldName == "budgetdistributionLine") {
+              payLoad[
+                "sangfor_businessunitdepartment@odata.bind"
+              ] = `/businessunits(${
+                row[fieldName][row[fieldName].length - 1]
+              })`;
+            } else if (fieldName == "sangfor_verifiedexpense") {
+              payLoad[fieldName] = row[fieldName];
+              payLoad["sangfor_verifiedexpenseusd"] = this.convertToUSD(
+                row[fieldName]
+              );
+              //console.log(this.convertToUSD(row[fieldName]))
+            } else {
+              payLoad[fieldName] = row[fieldName];
+              payLoad["sangfor_departmentsharedexpenseusd"] = this.convertToUSD(
+                row[fieldName]
+              );
+            }
+            if (this.editCell.oldValue == row[fieldName]) {
+              if (
+                (fieldName == "sangfor_verifiedexpense" && row.isverified) ||
+                fieldName !== "sangfor_verifiedexpense"
+              ) {
+                console.log(
+                  "same value",
+                  this.editCell.oldValue,
+                  row[fieldName]
+                );
+                this.$set(this.detailsTable[index], "isEdit", false);
+                return;
+              }
+            }
+            var newCurrentTotalrequestedbudget =
+              this.currentTotalrequestedbudget -
+              this.editCell.oldValue +
+              row["sangfor_departmentsharedexpense"];
+            if (
+              newCurrentTotalrequestedbudget >
+                this.currentEntity.totalrequestedbudget &&
+              !this.isCanVerified
+            ) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "All shared expense cannot be greater than " +
+                  this.currentEntity.totalrequestedbudget +
+                  "!",
+                "error"
+              );
+              return;
+            }
+
+            var budgetdistributionsLineId =
+              row["budgetdistributionLine"][
+                row["budgetdistributionLine"].length - 1
+              ];
+            this.getDepartmentBudget(
+              budgetdistributionsLineId,
+              "Update",
+              index,
+              row,
+              entityName,
+              fieldName,
+              payLoad
+            );
+          },
+          /*更新方法*/
+          updateTableData(index, row, entityName, fieldName, payLoad) {
+            if (
+              fieldName == "budgetdistributionLine" ||
+              fieldName == "sangfor_departmentsharedexpense"
+            ) {
+              var departmentBudget = this.checkDepartmentBudget(
+                row["sangfor_departmentsharedexpense"]
+              );
+              if (departmentBudget) {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "Department shared expense cannot exceed remaining budget!",
+                  "error"
+                );
+                return;
+              }
+            }
+            var reqList = [];
+            var req = new Sdk.UpdateRequest(
+              entityName,
+              row[entityName + "id"],
+              payLoad
+            );
+            reqList.push(req);
+            SangforJS.D365.FunctionCommon.ExecuteMultipleRequest(
+              reqList,
+              (res) => {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "save success",
+                  "success"
+                );
+                this.queryBudgetdistributionsLineData();
+              },
+              (err) => {
+                SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                  "save error！",
+                  "error"
+                );
+                console.log("budgetdistribution save error", err);
+              }
+            );
+          },
+          handlePaginationCurrentChange(val) {
+            this.currentPage = val;
+          },
+          autoSetParentHeight() {
+            this.$nextTick(() => {
+              var iframe = $(
+                "iframe[src$='root_/html/ProductLineManagement.html']",
+                top.document
+              );
+              var parents = iframe.parentsUntil("section[role='presentation']");
+              var parentSection = parents[parents.length - 1];
+              var thisFormHeight = $(".content-form-box").height();
+              console.log("autoSetParentHeight", thisFormHeight);
+              if (parentSection && thisFormHeight) {
+                $(parentSection).attr(
+                  "style",
+                  "height: " + (thisFormHeight + 12) + "px"
+                );
+                $(".opportunity_management").attr(
+                  "style",
+                  "height: " + thisFormHeight + "px"
+                );
+              } else {
+                console.log("无法获取到当前自定义页面的高度和父组件");
+                //不做处理
+              }
+            });
+          },
+          checkVerified() {
+            if (this.currentEntity.id) {
+              var fetchXml = "?fetchXml="; //'';
+              fetchXml +=
+                "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+              fetchXml += "  <entity name='sangfor_marketingcampaign'>";
+              fetchXml += "    <attribute name='sangfor_approvalstatus' />";
+              fetchXml += "    <attribute name='sangfor_eventstauts' />";
+              fetchXml += "    <attribute name='exchangerate' />";
+              fetchXml += "    <filter type='and'>";
+              fetchXml +=
+                "      <condition attribute='sangfor_marketingcampaignid' operator='eq' value='" +
+                this.currentEntity.id +
+                "' />";
+              fetchXml += "    </filter>";
+              fetchXml += "  </entity>";
+              fetchXml += "</fetch>";
+              SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+                fetchXml,
+                "sangfor_marketingcampaign",
+                (success) => {
+                  if (success.length > 0) {
+                    //console.log('checkIsVerified---', success);
+                    //根据活动状态和审批状态判断是否是财务审核节点
+                    let approvestatus = success[0]?.sangfor_approvalstatus; // 活动状态
+                    let eventstauts = success[0]?.sangfor_eventstauts; // 审批
+                    this.currentEntity.exchangerate = success[0]?.exchangerate; //活动申请的汇率
+                    // Event Status=Event in Progress 或Event Delayed & Approve Status = Approved
+                    // 920400002 Approved
+                    // 920400001 Event in Progress  920400002 Event Delayed
+
+                    //判断当前是否包含： 活动总结报告已审批通过的数据
+                    fetchXml = "?fetchXml="; //'';
+                    fetchXml +=
+                      "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+                    fetchXml +=
+                      "  <entity name='sangfor_marketingactivityreport'>";
+                    fetchXml +=
+                      "    <attribute name='sangfor_marketingactivityreportid' />";
+                    fetchXml += "    <filter type='and'>";
+                    fetchXml +=
+                      "      <condition attribute='sangfor_marketingcampaignid' operator='eq' value='" +
+                      this.currentEntity.id +
+                      "' />";
+                    fetchXml +=
+                      "      <condition attribute='sangfor_approvalstatus' operator='eq' value='920400002'/>";
+                    fetchXml += "    </filter>";
+                    fetchXml += "  </entity>";
+                    fetchXml += "</fetch>";
+                    SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+                      fetchXml,
+                      "sangfor_marketingactivityreport",
+                      (success) => {
+                        //当前是财务审核节点
+                        this.isCanVerified =
+                          (eventstauts == "920400001" ||
+                            eventstauts == "920400002") &&
+                          approvestatus == "920400002" &&
+                          success.length > 0;
+                        //如果是财务核销节点，或者财务核销结束后，则显示相关信息
+                        this.isShowVerified =
+                          this.isCanVerified || eventstauts == "920400004";
+                        if (this.isCanVerified) {
+                          //判断当前登录人有无财务人员权限
+                          var roles =
+                            top.Xrm.Utility.getGlobalContext().userSettings
+                              .roles;
+                          this.isCanVerified = false;
+                          roles.forEach((item) => {
+                            //console.log('444', this.canverifiedRole.indexOf(item.name))
+                            if (this.canVerifiedRole.indexOf(item.name) >= 0) {
+                              this.isCanVerified = true;
+                              this.isDisabled = false;
+                            }
+                          });
+                        }
+                        //console.log(this.isCanVerified);
+                        //console.log(this.isShowVerified);
+                      },
+                      (err) => {
+                        console.log("checkIsVerified------", err);
+                      }
+                    );
+                  }
+                },
+                (err) => {
+                  console.log("checkIsVerified------", err);
+                }
+              );
+            }
+          },
+          focusEvent(row) {
+            row.oldName = row.name;
+          },
+          confirmVerified() {
+            if (this.noVerifiedCount > 0) {
+              SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                "Please fill in all Verified Expense!",
+                "error"
+              );
+              return;
+            }
+            SangforJS.D365.FunctionCommon.OpenConfirmDialog(
+              "Are you sure to confirm?",
+              () => {
+                var payLoad = {
+                  sangfor_totalverifiedexpense: this.totalVerifiedExpenseusd,
+                  sangfor_eventstauts: "920400004",
+                };
+                var reqList = [];
+                var req = new Sdk.UpdateRequest(
+                  "sangfor_marketingcampaign",
+                  this.currentEntity.id,
+                  payLoad
+                );
+                reqList.push(req);
+                SangforJS.D365.FunctionCommon.ExecuteMultipleRequest(
+                  reqList,
+                  (res) => {
+                    SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                      "confirm success!",
+                      "success"
+                    );
+                    //console.log('sangfor_eventstauts', top.Xrm.Page.getAttribute("sangfor_eventstauts").getValue());
+                    //top.Xrm.Page.getAttribute("sangfor_eventstauts").setValue(920400004)
+                    //console.log('sangfor_eventstauts', top.Xrm.Page.getAttribute("sangfor_eventstauts").getValue());
+                    top.Xrm.Page.data.refresh();
+                    this.isCanVerified = false;
+                  },
+                  (err) => {
+                    SangforJS.D365.FunctionCommon.ShowMessageVUE(
+                      "confirm error!",
+                      "error"
+                    );
+                    console.log("confirm error", err);
+                  }
+                );
+              }
+            );
+          },
+          /*/取对应的扣减明细，如果分摊删除的话，扣减明细也要删除*/
+          deleteebd(sangfor_budgetdistributionid) {
+            console.log("deleteebd", sangfor_budgetdistributionid);
+            var fetchXml = "?fetchXml="; //'';
+            fetchXml +=
+              "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>";
+            fetchXml += "  <entity name='sangfor_eventbudgetdeduction'>";
+            fetchXml +=
+              "    <attribute name='sangfor_eventbudgetdeductionid' />";
+            fetchXml += "    <filter type='and'>";
+            fetchXml +=
+              "      <condition attribute='sangfor_budgetdistributionid' operator='eq' value='" +
+              sangfor_budgetdistributionid +
+              "'/>";
+            fetchXml += "    </filter>";
+            fetchXml += "  </entity>";
+            fetchXml += "</fetch>";
+            SangforJS.D365.FunctionCommon.RetrieveMultipleRecordsByCurrentUser(
+              fetchXml,
+              "sangfor_eventbudgetdeduction",
+              (success) => {
+                if (success.length > 0) {
+                  console.log(
+                    "sangfor_eventbudgetdeductionid",
+                    success[0].sangfor_eventbudgetdeductionid
+                  );
+                  var payLoad = {
+                    entityType: "sangfor_eventbudgetdeduction",
+                    id: success[0].sangfor_eventbudgetdeductionid,
+                  };
+                  var reqList = [];
+                  var req = new Sdk.DeleteRequest(payLoad);
+                  reqList.push(req);
+                  SangforJS.D365.FunctionCommon.ExecuteMultipleRequest(
+                    reqList,
+                    (res) => {
+                      console.log("deleteebd success");
+                    },
+                    (err) => {
+                      console.log("deleteebd error", err);
+                    }
+                  );
+                }
+              },
+              (err) => {
+                console.log(err);
+              }
+            );
+          },
+        },
+        directives: {
+          focus: {
+            inserted: function (el) {
+              el.querySelector("input").focus();
+            },
+          },
+        },
+        computed: {
+          totalVerifiedExpenseusd: {
+            get() {
+              return (
+                "$" +
+                this.detailsTable.reduce((total, item) => {
+                  return (
+                    total +
+                    (item.sangfor_verifiedexpenseusd === undefined
+                      ? 0
+                      : item.sangfor_verifiedexpenseusd)
+                  );
+                }, 0)
+              );
+            },
+            set() {},
+          },
+          noVerifiedCount: {
+            get() {
+              return this.detailsTable.filter((item, i, arr) => {
+                return (
+                  item.sangfor_departmentsharedexpense !== 0 &&
+                  item.isverified === 0
+                );
+              }).length;
+            },
+            set() {},
+          },
+          showOperation: {
+            get() {
+              return (
+                this.currentEntity.approvalstatus == "920400001" ||
+                this.currentEntity.approvalstatus == "920400003"
+              );
+            },
+            set() {},
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

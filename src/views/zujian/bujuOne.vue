@@ -42,12 +42,31 @@
         </div>
       </div>
       <div class="rightContent">
-        <el-input
+        <!-- <el-input
           type="text"
           placeholder="请输入姓名或者工号"
           style="max-width: 600px"
           class="setInputcss"
-        ></el-input>
+        ></el-input> -->
+
+        <el-input
+          placeholder="请输入内容"
+          v-model="input3"
+          style="max-width: 600px"
+        >
+          <el-select v-model="sfKeyChoose" slot="prepend" placeholder="请选择">
+            <!-- <el-option label="餐厅名" value="1"></el-option>
+            <el-option label="订单号" value="2"></el-option>
+            <el-option label="用户电话" value="3"></el-option> -->
+            <el-option
+              v-for="item in keywordOption"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+        </el-input>
         <!-- <el-button type="primary" style="margin-left: 12px" class="btnClass">查询</el-button> -->
         <button style="margin-left: 12px" class="btnClass" @click="search">
           查询
@@ -254,6 +273,18 @@ export default {
       currentPage2: 5,
       currentPage3: 5,
       currentPage4: 4,
+      input3: "",
+      sfKeyChoose: "1",
+      keywordOption: [
+        {
+          label: "工号/姓名",
+          value: "1",
+        },
+        {
+          label: "项目名称",
+          value: "2",
+        },
+      ],
     };
   },
   methods: {
@@ -271,7 +302,7 @@ export default {
         `排序列: ${column.label}，排序方向: ${order}`,
         `prop:${prop}`
       );
-        //  this.queryParams.isAsc = column.order === "ascending" ? 'asc' : 'desc'
+      //  this.queryParams.isAsc = column.order === "ascending" ? 'asc' : 'desc'
       // 在这里可以实现具体的排序逻辑，例如对tableData数组进行排序
     },
   },
@@ -413,6 +444,13 @@ export default {
   }
   /deep/ .el-select {
     z-index: 999;
+  }
+
+  /deep/ .el-select .el-input {
+    width: 130px;
+  }
+  .input-with-select .el-input-group__prepend {
+    background-color: #fff;
   }
   /* 增加下拉菜单的高度 */
 }
