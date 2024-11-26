@@ -37,6 +37,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             @change="search"
+             style="max-width: 240px; margin-right: 44px"
           >
           </el-date-picker>
         </div>
@@ -54,7 +55,7 @@
           v-model="input3"
           style="max-width: 600px"
         >
-          <el-select v-model="sfKeyChoose" slot="prepend" placeholder="请选择">
+          <el-select style="width: 130px;" v-model="sfKeyChoose" slot="prepend" placeholder="请选择">
             <!-- <el-option label="餐厅名" value="1"></el-option>
             <el-option label="订单号" value="2"></el-option>
             <el-option label="用户电话" value="3"></el-option> -->
@@ -312,7 +313,7 @@ export default {
 .box {
   height: 100%;
   width: 100%;
-
+  overflow: hidden;
   .searchContainer {
     height: 64px;
     display: flex;
@@ -346,19 +347,11 @@ export default {
             overflow: hidden;
             flex-wrap: nowrap;
           }
-          //   .el-select__tags-text {
-          //     display: inline-block;
-          //     max-width: 85px;
-          //     overflow: hidden;
-          //     white-space: nowrap;
-          //     text-overflow: ellipsis;
-          //   }
-          //   .el-tag__close.el-icon-close {
-          //     top: -7px;
-          //   }
         }
       }
     }
+
+    
     .rightContent {
       align-items: center;
       border: 1px solid pink;
@@ -444,10 +437,6 @@ export default {
   }
   /deep/ .el-select {
     z-index: 999;
-  }
-
-  /deep/ .el-select .el-input {
-    width: 130px;
   }
   .input-with-select .el-input-group__prepend {
     background-color: #fff;

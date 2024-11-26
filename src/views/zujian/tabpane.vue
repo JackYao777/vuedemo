@@ -1,7 +1,7 @@
 <template>
   <div style="height: 100%;width: 100%;">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="用户管理" name="first" style="height: calc(100vh - 35px);">
+      <el-tab-pane label="用户管理" name="first" style="height: calc(100vh - 64px);">
         <bujuOne></bujuOne>
       </el-tab-pane>
       <el-tab-pane label="配置管理" name="second">配置管理</el-tab-pane>
