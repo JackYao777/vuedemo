@@ -8,6 +8,7 @@ VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
 }
 
+//这个一般都是后台获取的权限
 let routesData = [
     {
         path: '/language',
@@ -353,6 +354,11 @@ let routesData = [
         path: '/zujian/buju',
         name: 'autocompleteDemo',
         component: () => import('@/views/zujian/buju.vue'),
+    },
+    {
+        path: '/zujian/cascaderDemo',
+        name: 'cascaderDemo',
+        component: () => import('@/views/zujian/cascaderDemo.vue'),
     },
 ];
 
