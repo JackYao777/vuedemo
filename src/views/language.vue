@@ -19,7 +19,7 @@ export default {
         }
     },
     created() {
-        //js中使用
+        //js中使用的
     //    var mm= this.$t('login.title');
 
         //最开始请求的时候看缓存是什么状态
