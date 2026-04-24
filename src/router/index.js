@@ -356,6 +356,21 @@ let routesData = [
         component: () => import('@/views/zujian/buju.vue'),
     },
     {
+        path: '/zujian/bujuOne',
+        name: 'bujuOne',
+        component: () => import('@/views/zujian/bujuOne.vue'),
+    },
+    {
+        path: '/zujian/tabpane',
+        name: 'tabpane',
+        component: () => import('@/views/zujian/tabpane.vue'),
+    },
+    {
+        path: '/zujian/elselectDemo',
+        name: 'elselectDemo',
+        component: () => import('@/views/zujian/elselectDemo.vue'),
+    },
+    {
         path: '/zujian/cascaderDemo',
         name: 'cascaderDemo',
         component: () => import('@/views/zujian/cascaderDemo.vue'),

@@ -26,7 +26,28 @@
                 </a>
             </div>
         </div>
-      
+        <!-- <div @mouseenter="setPreview(true)" @mouseleave="setPreview(false)"
+            @click="clickPreview()" style="width:330px; display: flex; flex-flow: column;">
+            <div>
+                <a href="https://missav.ws/cn/sdde-652-uncensored-leak" style="display: flex;height: 220px;width:330px; justify-content:flex-end;">
+                    <video id="preview-6566fd26-5e38-49d7-a918-2a72fe231667"
+                    v-if="showPreview"
+                    autoplay loop 
+                    style="height:100%; width: 100%; "
+                        src="https://fivetiu.com/sdde-652-uncensored-leak/preview.mp4"></video>
+                    <img
+                      style="height: 100%;"
+                        v-if="!showPreview"
+                    data-src="https://fivetiu.com/sdde-652-uncensored-leak/cover-t.jpg"
+                        src="https://fivetiu.com/sdde-652-uncensored-leak/cover-t.jpg" data-loaded="true">
+                </a>
+            </div>
+            <div>
+                <a style="width:100%; display:inline-block; overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+                     SDDE-652 款待“制服”跨界 Oma Co ○ Air 14 中出女牛仔飞行
+                </a>
+            </div>
+        </div> -->
     </div>
 </template>
 <script>
