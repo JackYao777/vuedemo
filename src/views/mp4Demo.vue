@@ -24,6 +24,7 @@ export default {
             }
         }
     },
+    //测试
     methods: {
         loadVideo(videoInfo) {
             console.log('sdf',videoInfo)
