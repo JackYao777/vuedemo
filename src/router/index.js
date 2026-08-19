@@ -375,6 +375,12 @@ let routesData = [
         name: 'cascaderDemo',
         component: () => import('@/views/zujian/cascaderDemo.vue'),
     },
+    {
+        //足球比分查询：按时间筛选，看每周大小球 / 具体比分比例分布
+        path: '/football/jingcai',
+        name: 'footballJingcai',
+        component: () => import('@/views/football/jingcai.vue'),
+    },
 ];
 
 //创建并暴露一个路由器

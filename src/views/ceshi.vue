@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div style="width:100%; margin:2px;" @mouseenter="mouseenter(id)" @mouseleave="mouseleave(id)">
+        <div style="width:100%; margin:2px; height: 500px;border: 1px solid red;" @mouseenter="mouseenter(id)" @mouseleave="mouseleave(id)">
             <div style="width:100%; height: 200px; position: relative;">
                 <a>
                     <video width="100%" height="100%" style="object-fit: cover;" :id="id + 'video'"
@@ -98,6 +98,12 @@ export default {
 .vdbox {
     background: pink;
 }
-
-/* style="width:100%; display:inline-block; overflow:hidden;white-space:nowrap;text-overflow:ellipsis" */
+</style>
+<style>
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+}
 </style>
